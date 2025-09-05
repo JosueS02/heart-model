@@ -14,6 +14,7 @@ jobs:
       matrix:
         python-version: [3.8]
     steps:
+    # Este es el nivel de indentación correcto para todos los pasos
     - uses: actions/checkout@v3
 
     - name: Set up Python
@@ -21,8 +22,6 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
 
-    # Tenías dos pasos para mostrar la versión, los uní en uno.
-    # Si los quieres separados, asegúrate de que ambos estén bien indentados.
     - name: Show Python version
       run: python --version
 
@@ -33,3 +32,22 @@ jobs:
         
     - name: Train model
       run: python model/train.py
+
+    # Todos los pasos de Docker ahora están alineados correctamente
+    - name: Show Docker version
+      run: docker --version
+
+    - name: Docker login
+      env:
+        DOCKER_USER: ${{ secrets.DOCKER_USER }}
+        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      run: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USER" --password-stdin
+
+    - name: Build image
+      run: docker build -t ${{ secrets.DOCKER_USER }}/${{ secrets.MODEL_NAME }}:${{ github.sha }} .
+
+    - name: Show images
+      run: docker images | head
+
+    - name: Push image
+      run: docker push ${{ secrets.DOCKER_USER }}/${{ secrets.MODEL_NAME }}:${{ github.sha }}
