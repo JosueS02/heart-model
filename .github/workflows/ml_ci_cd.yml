@@ -6,6 +6,7 @@ on:
     branches: [ master ]
   repository_dispatch:
     types: [ml_ci_cd]
+
 jobs:
   ml_ci_cd:
     runs-on: ubuntu-latest
@@ -14,9 +15,21 @@ jobs:
         python-version: [3.8]
     steps:
     - uses: actions/checkout@v3
+
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-          python-version: ${{ matrix.python-version }}
-    - name: list 
+        python-version: ${{ matrix.python-version }}
+
+    # Tenías dos pasos para mostrar la versión, los uní en uno.
+    # Si los quieres separados, asegúrate de que ambos estén bien indentados.
+    - name: Show Python version
       run: python --version
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install -r requirements.txt
+        
+    - name: Train model
+      run: python model/train.py
